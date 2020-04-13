@@ -181,7 +181,7 @@ def _xcodeproj_impl(ctx):
                             'validate': False
                         } for s in target_info.srcs.to_list()]
         if target_info.name in test_host_appnames:
-          target_settings['INFOPLIST_FILE'] = "$PROJECT_FILE_PATH/dummy-testhostapp-plists/%s-Info.plist" % (target_info.name)
+          target_settings['GENERATE_PKGINFO_FILE'] = False
 
         xcodeproj_targets_by_name[target_info.name] = {
             'sources': srcs_for_target,
@@ -264,24 +264,12 @@ $BAZEL_INSTALLER
         is_executable = True,
     )
 
-    testhostapp_plist_files = []
-    for test_host_appname in list(test_host_appnames.keys()):
-        # plist_dir = ctx.actions.declare_directory("%s/dummy-testhostapp-plists" % project_name)
-        new_plist_path = "dummy-testhostapp-plists/%s-Info.plist" % (test_host_appname)
-        testhostapp_plist_file = ctx.actions.declare_file(new_plist_path)
-        ctx.actions.expand_template(
-            substitutions = {},
-            template = ctx.file._info_plist_template,
-            output = testhostapp_plist_file,
-        )
-        testhostapp_plist_files.append(testhostapp_plist_file)
-
     return [
         DefaultInfo(
             executable = install_script,
             files = depset([xcodegen_jsonfile, project]),
             runfiles = ctx.runfiles(files = [xcodegen_jsonfile, project], transitive_files = depset(
-                direct = ctx.files.installer + ctx.files.clang_stub + ctx.files.ld_stub + ctx.files.swiftc_stub + testhostapp_plist_files,
+                direct = ctx.files.installer + ctx.files.clang_stub + ctx.files.ld_stub + ctx.files.swiftc_stub,
                 transitive = [ctx.attr.installer[DefaultInfo].default_runfiles.files],
             )),
         ),
