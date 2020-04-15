@@ -498,6 +498,7 @@ def apple_library(name, library_tools = {}, export_private_headers = True, names
         swift_library(
             name = swift_libname,
             module_name = module_name,
+            generated_header = generated_header_name,
             srcs = swift_sources,
             copts = swift_copts,
             deps = deps + internal_deps + lib_names,
